@@ -1,0 +1,45 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Helper: Yalnız "admins" kolleksiyasında öz UID-i ilə sənədi olan,
+    // əvvəlcədən təsdiqlənmiş şəxslər admin sayılır.
+    // Diqqət: sadəcə "request.auth != null" YETƏRLİ DEYİL — bu, istənilən
+    // özü-qeydiyyatdan-keçmiş Firebase istifadəçisinə tam giriş verər.
+    // Admin təyin etmək üçün: Firebase Console > Authentication-da hesab
+    // yaradın, sonra Firestore-da "admins/{həmin_hesabın_UID-i}" sənədini
+    // əl ilə yaradın (məzmunu önəmli deyil, sadəcə mövcud olması kifayətdir).
+    function isAdmin() {
+      return request.auth != null &&
+        exists(/databases/$(database)/documents/admins/$(request.auth.uid));
+    }
+
+    // "admins" sənədlərini heç kim client tərəfdən oxuya/yaza bilməz —
+    // yalnız Firebase Console və ya Admin SDK vasitəsilə idarə olunur.
+    match /admins/{uid} {
+      allow read, write: if false;
+    }
+
+    // 1. ŞABLONLAR: Hər kəs oxuya bilər, yalnız Admin yarada/dəyişə/silə bilər
+    match /templates/{templateId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // 2. DƏVƏTNAMƏLƏR: Hər kəs oxuya bilər, yalnız Admin yarada/dəyişə/silə bilər
+    match /invitations/{invitationId} {
+      allow read: if true;
+      allow create, delete: if isAdmin();
+      allow update: if isAdmin() || (
+        request.resource.data.diff(resource.data).affectedKeys().hasOnly(['views', 'updatedAt'])
+      );
+    }
+
+    // 3. TƏNZİMLƏMƏLƏR VƏ DİGƏR SƏNƏDLƏR
+    match /{document=**} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+  }
+}
+

@@ -1,0 +1,12 @@
+@import "tailwindcss";
+
+/* Hides scrollbars on horizontally-scrollable chip rows (category filters)
+   while keeping the element scrollable — used on the public catalog page. */
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+

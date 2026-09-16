@@ -1,0 +1,6 @@
+{
+  "name": "Toy Dəvətnamələri & Şablonlar Portalı",
+  "description": "Onlayn toy və nişan dəvətnamələri platforması, hərəkətli video zərf şablonları kataloqu və idarəetmə paneli.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
